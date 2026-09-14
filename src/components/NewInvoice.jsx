@@ -38,57 +38,74 @@ export default function NewInvoice({ setView }) {
     setView('home');
   };
 
-  // ==========================================
-  // VISTA: MODAL DE COBRO (CORREGIDO PARA TABLETS EN HORIZONTAL)
+// ==========================================
+  // VISTA: MODAL DE COBRO (CERO SCROLL - OPTIMIZADO PARA ALTA VELOCIDAD)
   // ==========================================
   if (modoCobro) {
     return (
-      <div className="flex flex-col h-full bg-gray-50">
+      <div className="flex flex-col h-full bg-gray-50 overflow-hidden">
         
-        {/* Encabezado Fijo */}
-        <div className="bg-white p-4 flex items-center justify-center shadow-sm border-b">
-          <h2 className="text-xl font-bold">Cobrar Factura</h2>
+        {/* ENCABEZADO FIJO COMPACTO */}
+        <div className="bg-white p-3 shadow-sm border-b text-center z-10">
+          <h2 className="text-lg font-bold">Cobrar Factura</h2>
         </div>
-
-        {/* Zona Central con Scroll (Aquí está la magia para que no se trabe) */}
-        <div className="p-4 md:p-6 flex-1 overflow-y-auto">
-          <div className="bg-white p-6 rounded-xl shadow-sm text-center mb-6 border-2 border-blue-100">
-            <p className="text-gray-500 mb-2">Total a Pagar</p>
-            <p className="text-4xl font-bold text-blue-600">₡{total.toLocaleString()}</p>
-          </div>
+        
+        {/* ÁREA CENTRAL SIN SCROLL - DISEÑO ADAPTATIVO (2 COLUMNAS EN TABLET) */}
+        <div className="p-4 flex-1 flex flex-col md:flex-row gap-4 items-center justify-center">
           
+          {/* BLOQUE 1: TOTAL A PAGAR (Se hace mitad de pantalla en horizontal) */}
+          <div className={`w-full ${metodoPago === 'Efectivo' ? 'md:w-1/2' : ''} bg-white p-6 rounded-xl shadow-sm text-center border-2 border-blue-100 flex flex-col justify-center h-full max-h-[250px]`}>
+            <p className="text-gray-500 mb-2 font-semibold uppercase tracking-wider text-sm">Total a Pagar</p>
+            <p className="text-6xl md:text-5xl font-black text-blue-600 tracking-tighter">₡{total.toLocaleString()}</p>
+          </div>
+
+          {/* BLOQUE 2: TECLADO Y BILLETES (Solo aparece en Efectivo) */}
           {metodoPago === 'Efectivo' && (
-            <>
-              <label className="block text-sm font-semibold text-gray-600 mb-2">Monto Recibido</label>
+            <div className="w-full md:w-1/2 flex flex-col justify-center h-full max-h-[250px]">
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-semibold text-gray-600">Monto Recibido:</label>
+              </div>
               <input 
                 type="number" inputMode="numeric" value={montoRecibido} onChange={(e) => setMontoRecibido(e.target.value)}
-                placeholder="Ej. 5000" className="w-full border-2 border-gray-300 rounded-xl p-4 text-2xl text-center mb-4" 
+                placeholder="Ej. 5000" 
+                className="w-full border-2 border-gray-300 rounded-xl p-3 text-3xl font-bold text-center mb-3 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all" 
               />
-              <div className="grid grid-cols-3 gap-2 mb-6">
+              <div className="grid grid-cols-3 gap-2">
                 {BILLETES_RAPIDOS.map(billete => (
-                  <button key={billete} onClick={() => setMontoRecibido(billete)} className="bg-gray-100 hover:bg-gray-200 py-3 rounded-lg font-semibold text-gray-700 shadow-sm transition-colors">
-                    ₡{billete}
+                  <button 
+                    key={billete} 
+                    onClick={() => setMontoRecibido(billete)} 
+                    className="bg-white border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 py-3 rounded-lg font-bold text-gray-700 text-lg transition-all shadow-sm active:scale-95"
+                  >
+                    ₡{billete.toLocaleString()}
                   </button>
                 ))}
               </div>
-              <div className={`p-4 rounded-xl text-center mb-6 ${vuelto >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                <p className="text-sm mb-1 font-semibold">Vuelto a entregar:</p>
-                <p className="text-3xl font-bold">₡{vuelto >= 0 ? vuelto.toLocaleString() : '0'}</p>
-              </div>
-            </>
+            </div>
           )}
         </div>
 
-        {/* Footer Fijo Abajo (Nunca se ocultará) */}
-        <div className="p-4 bg-white border-t flex gap-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-          <button onClick={() => setModoCobro(false)} className="w-1/3 bg-gray-200 hover:bg-gray-300 font-bold py-4 rounded-xl text-gray-700 transition-colors">
-            Atrás
-          </button>
-          <button onClick={finalizarCompra} className="w-2/3 bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl shadow-md transition-colors">
-            Confirmar
-          </button>
-        </div>
+        {/* PIE DE PÁGINA FIJO (Vuelto + Botones de Acción) */}
+        <div className="bg-white border-t flex flex-col shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] z-10 mt-auto">
+          
+          {/* BANNER DE VUELTO COMPACTO */}
+          {metodoPago === 'Efectivo' && (
+            <div className={`px-4 py-3 flex justify-between items-center ${vuelto >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+              <span className="text-sm font-bold uppercase tracking-wider">Vuelto:</span>
+              <span className="text-3xl font-black">₡{vuelto >= 0 ? vuelto.toLocaleString() : '0'}</span>
+            </div>
+          )}
 
+          {/* BOTONES */}
+          <div className="p-3 flex gap-3">
+            <button onClick={() => setModoCobro(false)} className="w-1/3 bg-gray-200 hover:bg-gray-300 font-bold py-3 rounded-xl text-gray-700 transition-colors text-lg active:scale-95">
+              Atrás
+            </button>
+            <button onClick={finalizarCompra} className="w-2/3 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-md transition-colors text-lg active:scale-95">
+              Confirmar
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
