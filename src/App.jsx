@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Home from './components/Home';
 import NewInvoice from './components/NewInvoice';
 import History from './components/History';
+import Maintenance from './components/Maintenance';
 
 export default function App() {
   const [view, setView] = useState('home');
@@ -21,6 +22,7 @@ export default function App() {
         {view === 'home' && <Home setView={setView} />}
         {view === 'new' && <NewInvoice setView={setView} />}
         {view === 'history' && <History setView={setView} />}
+        {view === 'maintenance' && <Maintenance setView={setView} />}
         
       </div>
     </div>
